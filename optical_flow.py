@@ -1,6 +1,12 @@
 import numpy as np
 import cv2 as cv
 
+# https://medium.com/@igorirailean/dense-optical-flow-with-python-using-opencv-cb6d9b6abcaf
+# https://docs.opencv.org/2.4/modules/video/doc/motion_analysis_and_object_tracking.html#calcopticalflowfarneback
+# https://opencv-python-tutroals.readthedocs.io/en/latest/py_tutorials/py_imgproc/py_thresholding/py_thresholding.html#thresholding
+# https://opencv-python-tutroals.readthedocs.io/en/latest/py_tutorials/py_photo/py_non_local_means/py_non_local_means.html
+
+
 # From opencv
 cap = cv.VideoCapture("1_2016-05-02_22-46-25.mp4")
 # read the first frame of the video
