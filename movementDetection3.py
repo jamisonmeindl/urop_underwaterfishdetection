@@ -25,13 +25,24 @@ selected = False
 
 lastPoint = []
 counter = 0
-
+wait = 0
 fishShape = load('fishImage.npy')
 
 
-#backSub = cv.createBackgroundSubtractorMOG2()
-backSub = cv.createBackgroundSubtractorKNN()
+backSub = cv.createBackgroundSubtractorMOG2()
+#backSub = cv.createBackgroundSubtractorKNN()
 capture = cv.VideoCapture('testImages/combinedVideo.mov')
+
+frame_width = int(capture.get(3)) 
+frame_height = int(capture.get(4)) 
+   
+size = (frame_width, frame_height)
+
+'''
+result = cv.VideoWriter('sampleBoxing.avi',  
+                         cv.VideoWriter_fourcc(*'MJPG'), 
+                         20, size) 
+'''
 
 while True:
     ret, frame = capture.read()
@@ -43,6 +54,9 @@ while True:
     
     cv.rectangle(frame, (10, 2), (100,20), (255,255,255), -1)
     cv.putText(frame, str(capture.get(cv.CAP_PROP_POS_FRAMES)), (15, 15),
+               cv.FONT_HERSHEY_SIMPLEX, 0.5 , (0,0,0))
+    cv.rectangle(frame, (495, 2), (605,20), (255,255,255), -1)
+    cv.putText(frame, 'Counter: ' + str(counter), (500, 15),
                cv.FONT_HERSHEY_SIMPLEX, 0.5 , (0,0,0))
     
     #blur = cv2.GaussianBlur(gray,(21,21),0)
@@ -64,16 +78,25 @@ while True:
             height, width = fgMask.shape[:2]     
             #print(rect)
             match = cv.matchShapes(fishShape, c, 1,0.0)
+            
             if rect[2] > 0.075*height and rect[2] < 0.7*height and rect[3] > 0.1*width and rect[3] < 0.7*width: 
                 x,y,w,h = cv.boundingRect(c)  
-                       
-            
+                
                 if match < 1.5:
+                    if abs(x + (w / 2) - (width / 2)) < 75:
+                        if wait == 0:
+                            counter += 1
+                        wait = 12
                     cv.drawContours(frame, c, -1, color, thickness)
                     cv.rectangle(frame,(x,y),(x+w,y+h),(0,0,255),2)  # draw red bounding box in img
+                    
             elif rect[2] > 0.05*height and rect[2] < 0.7*height and rect[3] > 0.05*width and rect[3] < 0.7*width: 
                 x,y,w,h = cv.boundingRect(c)    
                 if match < 1.5:
+                    if abs(x + (w / 2) - (width / 2)) < 75:
+                        if wait == 0:
+                            counter += 1
+                        wait = 6
                     cv.drawContours(frame, c, -1, (0, 255,0), 1)
                     cv.rectangle(frame,(x,y),(x+w,y+h),(0,0,255),2)
             else:
@@ -82,8 +105,16 @@ while True:
         img2 = fgMask
     
     #cv.drawContours(frame, fishShape, -1, color, thickness)
-    cv.imshow('FG Mask', frame)
-    
-    keyboard = cv.waitKey(50)
+    cv.imshow('Boxed Video', frame)
+    cv.imshow('Transformations', fgMask)
+    #result.write(frame) 
+    if wait > 0:
+        wait -= 1
+    keyboard = cv.waitKey(20)
     if keyboard == 'q' or keyboard == 27:
         break
+    
+#result.release()
+capture.release()
+
+cv.destroyAllWindows()
